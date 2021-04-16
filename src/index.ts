@@ -1,4 +1,4 @@
-import _parser from './mpilot-parser'
+import _parser from './parser'
 
 export const parser = _parser
 

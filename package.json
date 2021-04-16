@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json && webpack --config webpack.config.babel.js",
     "test": "jest --verbose",
-    "build-parser": "jison jison/mpilot.jison -o src/mpilot-parser/mpilot.js"
+    "build-parser": "jison jison/mpilot.jison -o src/parser/mpilot.js"
   },
   "name": "mpilot",
   "author": "Nikolas Stevenson-Molnar",

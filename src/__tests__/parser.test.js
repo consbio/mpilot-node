@@ -1,4 +1,4 @@
-import parse from '../mpilot-parser'
+import parse from '../parser'
 
 describe('parser', () => {
   test('basic parsing works correctly', () => {
