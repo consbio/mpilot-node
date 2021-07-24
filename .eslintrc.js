@@ -32,6 +32,9 @@ module.exports = {
     'no-alert': 'off',
     'import/extensions': 'off',
     'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+    'class-methods-use-this': 'off',
+    'no-return-assign': ['error', 'except-parens'],
+    'max-classes-per-file': 'off',
   },
   plugins: ['@typescript-eslint', 'prettier'],
 }
