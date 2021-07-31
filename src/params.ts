@@ -1,10 +1,11 @@
 import Program from './program'
+import { BaseCommand } from './commands'
 
 export interface Parameter {
   required: boolean
 
   clean: (value: any, program?: Program, lineno?: number) => any
-  accepts?: (parameterCls: { new (): Parameter }) => boolean
+  accepts?: (parameterCls: Parameter) => boolean
 }
 
 export class AnyParameter implements Parameter {
@@ -87,7 +88,6 @@ export class ResultParameter extends AnyParameter {
     this.isFuzzy = isFuzzy === undefined ? null : isFuzzy
   }
 
-  // todo: add return type
   clean(value: any, program?: Program, lineno?: number): any {
     let _value = value
 
@@ -95,17 +95,19 @@ export class ResultParameter extends AnyParameter {
       if (_value in program.commands) {
         _value = program.commands[_value]
       } else {
-        throw new Error(`The command ${_value} does not exist`)
+        throw new Error(`The command ${_value} does not exist.`)
       }
     }
 
-    // Todo check for command type
+    if (!(_value instanceof BaseCommand)) {
+      throw new Error(`A value of type Result was expected, but value ${_value} of type ${typeof _value} was provided.`)
+    }
 
-    if (this.isFuzzy === true && !_value.isFuzzy) {
+    if (this.isFuzzy === true && !_value.fuzzy) {
       throw new Error(`The command ${_value} is not fuzzy`)
     }
 
-    if (this.isFuzzy === false && _value.isFuzzy === true) {
+    if (this.isFuzzy === false && _value.fuzzy === true) {
       throw new Error(`The command ${_value} is fuzzy`)
     }
 
@@ -113,7 +115,7 @@ export class ResultParameter extends AnyParameter {
       return _value
     }
 
-    if (_value.isFinished) {
+    if (_value.finished) {
       this.outputType.clean(_value.getResult(), program, lineno)
       return _value
     }
@@ -122,10 +124,10 @@ export class ResultParameter extends AnyParameter {
       if (this.outputType.accepts) {
         isValid = this.outputType.accepts(_value.output)
       } else {
-        isValid = _value.output instanceof Object.getPrototypeOf(this.outputType)
+        isValid = _value.output instanceof Object.getPrototypeOf(this.outputType).constructor
       }
       if (!isValid) {
-        throw new Error(`The command ${_value} does not return the correct type`)
+        throw new Error(`The command ${_value.resultName} does not return the correct type.`)
       }
     }
 
@@ -134,9 +136,9 @@ export class ResultParameter extends AnyParameter {
 }
 
 export class ListParameter extends AnyParameter {
-  valueType: Parameter
+  valueType?: Parameter
 
-  constructor(valueType: Parameter, required?: boolean) {
+  constructor(valueType?: Parameter, required?: boolean) {
     super(required)
 
     this.valueType = valueType
@@ -147,7 +149,7 @@ export class ListParameter extends AnyParameter {
       throw new Error(`${value} is not a list`)
     }
 
-    return value.map(item => this.valueType.clean(item.value, program, lineno)) // todo check if item is Argument
+    return value.map(item => (this.valueType ? this.valueType.clean(item.value || item, program, lineno) : item.value))
   }
 }
 

@@ -1,7 +1,22 @@
 import parse from './parser'
-import { CommandClass, Command, Argument, ListArgument } from './commands'
+import { CommandClass, BaseCommand, Argument, ListArgument } from './commands'
 import defaultLookup, { CommandLookup } from './libraries'
 import { ExpressionNode } from './parser/mpilot'
+import { ResultParameter } from './params'
+
+const flatten = (arr: any[]) => {
+  let result: any[] = []
+
+  arr.forEach(item => {
+    if (Array.isArray(item)) {
+      result = [...result, ...flatten(item)]
+    } else {
+      result.push(item)
+    }
+  })
+
+  return result
+}
 
 export default class Program {
   static fromSource = (source: string, lookup: CommandLookup = defaultLookup) => {
@@ -60,7 +75,7 @@ export default class Program {
 
   lookup: CommandLookup
 
-  commands: { [name: string]: Command } = {}
+  commands: { [name: string]: BaseCommand } = {}
 
   constructor(lookup: CommandLookup = defaultLookup) {
     this.lookup = lookup
@@ -71,7 +86,32 @@ export default class Program {
       throw new Error(`The result name "${resultName}" is duplicated in the command file.`)
     }
 
-    this.commands[resultName] = new CommandCls(resultName, args, this, lineno || 0)
+    const command = new CommandCls(resultName, args, this, lineno || 0)
+
+    const params: any = {}
+    args.forEach(arg => (params[arg.name] = arg.value))
+
+    const requiredInputs = Object.entries(command.inputs)
+      .filter(([, value]) => value.required)
+      .map(([key]) => key)
+    const allInputs = Object.keys(command.inputs)
+
+    const missingParams = requiredInputs.filter(p => !Object.keys(params).includes(p))
+    if (missingParams.length) {
+      throw new Error(
+        `The command ${command.name} is missing the following required parameters: ${missingParams.join(', ')}.`,
+      )
+    }
+
+    Object.entries(params).forEach(([name, _]) => {
+      if (!allInputs.includes(name)) {
+        if (!command.allowExtraArguments) {
+          throw new Error(`The command ${command.name} has no parameter named "${name}".`)
+        }
+      }
+    })
+
+    this.commands[resultName] = command
   }
 
   validate = () => {
@@ -81,6 +121,39 @@ export default class Program {
   }
 
   run = () => {
-    // Not implemented
+    // Build dependency lookup
+    const dependents: { [resultName: string]: string[] } = {}
+
+    Object.values(this.commands).forEach(command => {
+      let references: string[] = []
+
+      command.args.forEach(arg => {
+        let value: any
+        if (command.inputs[arg.name]) {
+          const inp = command.inputs[arg.name]
+          value = inp.clean(arg.value, this, arg.lineno)
+
+          if (inp instanceof ResultParameter) {
+            references.push(value instanceof BaseCommand ? value.resultName : value)
+          }
+          if (Array.isArray(value)) {
+            references = [...references, ...flatten(value).filter(item => item instanceof BaseCommand)]
+          }
+        }
+      })
+
+      references.forEach(reference => {
+        dependents[reference] = dependents[reference] || []
+        if (!dependents[reference].includes(command.resultName)) {
+          dependents[reference].push(command.resultName)
+        }
+      })
+    })
+
+    Object.values(this.commands)
+      .filter(command => !dependents[command.resultName])
+      .forEach(command => {
+        command.run()
+      })
   }
 }

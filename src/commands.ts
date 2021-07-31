@@ -1,5 +1,5 @@
 import Program from './program'
-import { AnyParameter, Parameter } from './params'
+import { AnyParameter, Parameter, TupleParameter } from './params'
 
 export interface Argument {
   name: string
@@ -16,6 +16,7 @@ export interface Command {
   displayName: string
   inputs: { [name: string]: Parameter }
   output: Parameter
+  fuzzy: boolean
   finished: boolean
 
   getResult(): any
@@ -27,16 +28,16 @@ export interface Command {
   run(): void
 }
 
-export type CommandClass = { new (resultName: string, args: Argument[], program: Program, lineno: number): Command }
-
 export class BaseCommand implements Partial<Command> {
   name = 'BaseCommand'
 
-  inputs: { [name: string]: Parameter } = {}
+  inputs: { [name: string]: Parameter } = { Metadata: new TupleParameter(false) }
 
   output = new AnyParameter()
 
   allowExtraArguments = false
+
+  fuzzy = false
 
   finished = false
 
@@ -96,7 +97,7 @@ export class BaseCommand implements Partial<Command> {
     const missingParams = requiredInputs.filter(p => !Object.keys(params).includes(p))
     if (missingParams.length) {
       throw new Error(
-        `The command ${this.name} is missing the following required parameters: ${missingParams.join(', ')}`,
+        `The command ${this.name} is missing the following required parameters: ${missingParams.join(', ')}.`,
       )
     }
 
@@ -143,3 +144,5 @@ export class BaseCommand implements Partial<Command> {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   execute = (params: any): any => null
 }
+
+export type CommandClass = { new (resultName: string, args: Argument[], program: Program, lineno: number): BaseCommand }
