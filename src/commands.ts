@@ -28,8 +28,12 @@ export interface Command {
   run(): void
 }
 
+export type CommandConstructorArgs = [string, Argument[], Program, number]
+
 export class BaseCommand implements Partial<Command> {
   name = 'BaseCommand'
+
+  displayName = 'Base Command'
 
   inputs: { [name: string]: Parameter } = { Metadata: new TupleParameter(false) }
 

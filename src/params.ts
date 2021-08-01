@@ -74,14 +74,22 @@ export class BooleanParameter extends AnyParameter {
   }
 }
 
-export class PathParameter extends StringParameter {}
+export class PathParameter extends StringParameter {
+  mustExist: boolean
+
+  constructor(mustExist: boolean = true, required: boolean = true) {
+    super(required)
+
+    this.mustExist = mustExist
+  }
+}
 
 export class ResultParameter extends AnyParameter {
-  outputType: Parameter
+  outputType?: Parameter
 
   isFuzzy: boolean | null
 
-  constructor(outputType: Parameter, isFuzzy?: boolean | null, required?: boolean) {
+  constructor(outputType?: Parameter, isFuzzy?: boolean | null, required?: boolean) {
     super(required)
 
     this.outputType = outputType
@@ -164,5 +172,45 @@ export class TupleParameter extends AnyParameter {
     }
 
     return value
+  }
+}
+
+export class DataParameter extends AnyParameter {
+  clean(value: any): any {
+    if (!Array.isArray(value)) {
+      throw new Error(
+        `A value type of Data Array was expected, but value ${value} of type ${typeof value} was provided.`,
+      )
+    }
+
+    return value
+  }
+}
+
+export type ValidDataTypes = { [name: string]: (value: number) => number }
+
+export class DataTypeParameter extends StringParameter {
+  validTypes: ValidDataTypes
+
+  constructor(validTypes: ValidDataTypes = { Float: n => n, Integer: n => Math.floor(n) }, required: boolean = true) {
+    super(required)
+
+    this.validTypes = validTypes
+  }
+
+  clean(value: any): any {
+    if (typeof value === 'function') {
+      return value
+    }
+
+    if (this.validTypes.value) {
+      return this.validTypes.value
+    }
+
+    throw new Error(
+      `A value of type Data Type (${Object.keys(this.validTypes).join(
+        ', ',
+      )}) was expected, but value ${value} of type ${typeof value} was provided.`,
+    )
   }
 }
