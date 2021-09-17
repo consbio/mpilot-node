@@ -190,6 +190,103 @@ export class Normalize extends BaseCommand {
   execute = () => {}
 }
 
+export class NormalizeZScore extends BaseCommand {
+  constructor(...args: CommandConstructorArgs) {
+    super(...args)
+
+    this.name = 'NormalizeZScore'
+    this.displayName = 'Normalize by Z Score'
+    this.inputs = {
+      ...this.inputs,
+      InFieldName: new ResultParameter(new DataParameter(), false),
+      TrueThresholdZScore: new NumberParameter(false),
+      FalseThresholdZScore: new NumberParameter(false),
+      StartVal: new NumberParameter(false),
+      EndVal: new NumberParameter(false),
+    }
+    this.output = new DataParameter()
+  }
+
+  execute = () => {}
+}
+
+export class NormalizeCat extends BaseCommand {
+  constructor(...args: CommandConstructorArgs) {
+    super(...args)
+
+    this.name = 'NormalizeCat'
+    this.displayName = 'Normalize by Category'
+    this.inputs = {
+      InFieldName: new ResultParameter(new DataParameter(), false),
+      RawValues: new ListParameter(new NumberParameter()),
+      NormalValues: new ListParameter(new NumberParameter()),
+      DefaultNormalValue: new NumberParameter(),
+      StartVal: new NumberParameter(false),
+      EndVal: new NumberParameter(false),
+    }
+    this.output = new DataParameter()
+  }
+
+  execute = () => {}
+}
+
+export class NormalizeCurve extends BaseCommand {
+  constructor(...args: CommandConstructorArgs) {
+    super(...args)
+
+    this.name = 'NormalizeCurve'
+    this.displayName = 'Normalize Curve'
+    this.inputs = {
+      InFieldName: new ResultParameter(new DataParameter(), false),
+      RawValues: new ListParameter(new NumberParameter()),
+      NormalValues: new ListParameter(new NumberParameter()),
+      StartVal: new NumberParameter(false),
+      EndVal: new NumberParameter(false),
+    }
+    this.output = new DataParameter()
+  }
+
+  execute = () => {}
+}
+
+export class NormalizeMeanToMid extends BaseCommand {
+  constructor(...args: CommandConstructorArgs) {
+    super(...args)
+
+    this.name = 'NormalizeMeanToMid'
+    this.displayName = 'Mean to Mid'
+    this.inputs = {
+      InFieldName: new ResultParameter(new DataParameter(), false),
+      IgnoreZeros: new BooleanParameter(),
+      NormalValues: new ListParameter(new NumberParameter()),
+      StartVal: new NumberParameter(false),
+      EndVal: new NumberParameter(false),
+    }
+    this.output = new DataParameter()
+  }
+
+  execute = () => {}
+}
+
+export class NormalizeCurveZScore extends BaseCommand {
+  constructor(...args: CommandConstructorArgs) {
+    super(...args)
+
+    this.name = 'NormalizeCurveZScore'
+    this.displayName = 'Normalize Curve by Z Score'
+    this.inputs = {
+      InFieldName: new ResultParameter(new DataParameter(), false),
+      ZScoreValues: new ListParameter(new NumberParameter()),
+      NormalValues: new ListParameter(new NumberParameter()),
+      StartVal: new NumberParameter(false),
+      EndVal: new NumberParameter(false),
+    }
+    this.output = new DataParameter()
+  }
+
+  execute = () => {}
+}
+
 export class PrintVars extends BaseCommand {
   constructor(...args: CommandConstructorArgs) {
     super(...args)

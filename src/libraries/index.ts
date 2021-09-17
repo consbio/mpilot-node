@@ -12,6 +12,11 @@ import {
   Mean,
   WeightedMean,
   Normalize,
+  NormalizeZScore,
+  NormalizeCat,
+  NormalizeCurve,
+  NormalizeMeanToMid,
+  NormalizeCurveZScore,
   PrintVars,
 } from './eems/basic'
 import {
@@ -49,6 +54,11 @@ export default {
   Mean,
   WeightedMean,
   Normalize,
+  NormalizeZScore,
+  NormalizeCat,
+  NormalizeCurve,
+  NormalizeMeanToMid,
+  NormalizeCurveZScore,
   PrintVars,
 
   CvtToFuzzy,
