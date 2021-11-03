@@ -1,4 +1,5 @@
 import path from 'path'
+import TypescriptDeclarationPlugin from 'typescript-declaration-webpack-plugin'
 
 export default {
   mode: 'production',
@@ -20,7 +21,11 @@ export default {
   output: {
     path: path.resolve('./dist'),
     filename: 'mpilot.js',
+    libraryTarget: 'umd',
+    library: 'mpilot',
+    umdNamedDefine: true,
   },
+  plugins: [new TypescriptDeclarationPlugin({ out: 'mpilot.d.ts' })],
   node: {
     fs: 'empty',
   },

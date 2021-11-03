@@ -22,7 +22,7 @@ export class EEMSRead extends BaseCommand {
       ReturnType: new DataTypeParameter(undefined, false),
       NewFieldName: new StringParameter(false),
       MissingVal: new NumberParameter(false),
-      DataType: new DataTypeParameter({ Float: (n: number) => n, Integer: (n: number) => Math.floor(n) }),
+      DataType: new DataTypeParameter({ Float: (n: number) => n, Integer: (n: number) => Math.floor(n) }, false),
     }
     this.output = new DataParameter()
   }

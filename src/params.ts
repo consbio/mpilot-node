@@ -1,5 +1,4 @@
 import Program from './program'
-import { BaseCommand } from './commands'
 
 export interface Parameter {
   required: boolean
@@ -107,7 +106,7 @@ export class ResultParameter extends AnyParameter {
       }
     }
 
-    if (!(_value instanceof BaseCommand)) {
+    if (!['name', 'displayName', 'inputs', 'output', 'fuzzy', 'finished'].every(member => member in _value)) {
       throw new Error(`A value of type Result was expected, but value ${_value} of type ${typeof _value} was provided.`)
     }
 
@@ -203,8 +202,8 @@ export class DataTypeParameter extends StringParameter {
       return value
     }
 
-    if (this.validTypes.value) {
-      return this.validTypes.value
+    if (this.validTypes[value]) {
+      return this.validTypes[value]
     }
 
     throw new Error(

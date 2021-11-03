@@ -1,7 +1,2 @@
-import _parser from './parser'
-
-export const parser = _parser
-
-export default {
-  parser: _parser,
-}
+export { default as parse } from './parser'
+export { default as Program } from './program'
