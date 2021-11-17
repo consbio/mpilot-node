@@ -77,6 +77,17 @@ describe('parser', () => {
     })
   })
 
+  test('tuples beginning with non-alpha characters parse correctly', () => {
+    expect(parse('A = Command(P = [A: 5abc, B: b])').commands[0].arguments[0].value.value).toEqual({
+      A: { value: '5abc', lineno: 1 },
+      B: { value: 'b', lineno: 1 },
+    })
+    expect(parse('A = Command(P = [ABC: %abc, B: b])').commands[0].arguments[0].value.value).toEqual({
+      ABC: { value: '%abc', lineno: 1 },
+      B: { value: 'b', lineno: 1 },
+    })
+  })
+
   test('An EEMS 2.0 READ command parses correctly and is identified as version 2', () => {
     const program = parse('READ(InFileName = foo.gdb, InFieldName = Test)')
     expect(program.version).toBe(2)

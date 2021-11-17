@@ -1,8 +1,9 @@
 import parse from './parser'
 import { CommandClass, BaseCommand, Argument, ListArgument } from './commands'
 import defaultLookup, { CommandLookup } from './libraries'
-import { ExpressionNode } from './parser/mpilot'
-import { ResultParameter } from './params'
+import { ExpressionNode, ProgramNode } from './parser/mpilot'
+import { ResultParameter, AnyParameter } from './params'
+import { convertEems2Commands } from './utils'
 
 const flatten = (arr: any[]) => {
   let result: any[] = []
@@ -33,10 +34,10 @@ export default class Program {
       } as ListArgument)
 
     const program = new Program(lookup)
-    const programNode = parse(source)
+    let programNode = parse(source)
 
     if (programNode.version === 2) {
-      throw new Error('EEMS v2 files are not supported.')
+      programNode = { commands: convertEems2Commands(programNode.commands), version: 3 } as ProgramNode
     }
 
     programNode.commands.forEach(cmdNode => {
@@ -103,7 +104,7 @@ export default class Program {
       )
     }
 
-    Object.entries(params).forEach(([name, _]) => {
+    Object.entries(params).forEach(([name]) => {
       if (!allInputs.includes(name)) {
         if (!command.allowExtraArguments) {
           throw new Error(`The command ${command.name} has no parameter named "${name}".`)
@@ -120,9 +121,14 @@ export default class Program {
     })
   }
 
-  run = () => {
-    // Build dependency lookup
-    const dependents: { [resultName: string]: string[] } = {}
+  getDependencyLookup = () => {
+    const lookup: {
+      dependents: { [resultName: string]: string[] }
+      dependencies: { [resultName: string]: string[] }
+    } = {
+      dependents: {},
+      dependencies: {},
+    }
 
     Object.values(this.commands).forEach(command => {
       let references: string[] = []
@@ -133,22 +139,35 @@ export default class Program {
           const inp = command.inputs[arg.name]
           value = inp.clean(arg.value, this, arg.lineno)
 
-          if (inp instanceof ResultParameter) {
+          if ((inp as AnyParameter) instanceof ResultParameter) {
             references.push(value instanceof BaseCommand ? value.resultName : value)
           }
           if (Array.isArray(value)) {
-            references = [...references, ...flatten(value).filter(item => item instanceof BaseCommand)]
+            references = [
+              ...references,
+              ...flatten(value)
+                .filter(item => item instanceof BaseCommand)
+                .map(item => (item instanceof BaseCommand ? item.resultName : item)),
+            ]
           }
         }
       })
 
+      lookup.dependencies[command.resultName] = references
+
       references.forEach(reference => {
-        dependents[reference] = dependents[reference] || []
-        if (!dependents[reference].includes(command.resultName)) {
-          dependents[reference].push(command.resultName)
+        lookup.dependents[reference] = lookup.dependents[reference] || []
+        if (!lookup.dependents[reference].includes(command.resultName)) {
+          lookup.dependents[reference].push(command.resultName)
         }
       })
     })
+
+    return lookup
+  }
+
+  run = () => {
+    const { dependents } = this.getDependencyLookup()
 
     Object.values(this.commands)
       .filter(command => !dependents[command.resultName])

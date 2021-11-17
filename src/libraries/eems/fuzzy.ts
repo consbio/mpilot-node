@@ -76,7 +76,7 @@ export class CvtToFuzzyCurve extends BaseCommand {
     this.displayName = 'Convert to Fuzzy Curve'
     this.inputs = {
       ...this.inputs,
-      InFieldNames: new ResultParameter(new DataParameter(), false),
+      InFieldName: new ResultParameter(new DataParameter(), false),
       RawValues: new ListParameter(new NumberParameter()),
       FuzzyValues: new ListParameter(new NumberParameter()),
     }

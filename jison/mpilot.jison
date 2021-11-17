@@ -1,3 +1,7 @@
+%{
+const { parseEntities } = _entities
+%}
+
 %lex
 
 %%
@@ -12,11 +16,11 @@
 [\-\+]?\d+                                    return "INT";
 "["                                           return "LBRACK";
 "("                                           return "LPAREN";
-[^\#\:\,\=\(\)\[\]\"\'\r\n]+                  return "PLAIN_STRING";
 "]"                                           return "RBRACK";
 ")"                                           return "RPAREN";
 (\"(\\.|[^\"\\])*\")|(\'(\\.|[^\'\\])*\')     return "STRING";
 "True"                                        return "TRUE";
+[^0-9][^\#\:\,\=\(\)\[\]\"\'\r\n]+            return "PLAIN_STRING";
 <<EOF>>                                       return "EOF";
 
 /lex
@@ -63,34 +67,37 @@ argument_list
 argument
     : ID EQUAL expression
         {$$ = {name: $1, value: $3, lineno: this._$.first_line};}
+    | ID EQUAL plain_expression
+        {$$ = {name: $1, value: $3, lineno: this._$.first_line};}
     ;
 
-expression
+plain_expression
     : ID
         {$$ = {value: yytext, lineno: this._$.first_line};}
-    | plain_string
-        {$$ = {value: $1, lineno: this._$.first_line};}
-    | STRING
-        {$$ = {value: yytext.substr(1, yytext.length-2), lineno: this._$.first_line};}
+    | ID COLON PLAIN_STRING
+        {$$ = {value: $1 + $2 + parseEntities($3), lineno: this._$.first_line};}
+    | PLAIN_STRING
+        {$$ = {value: parseEntities(yytext), lineno: this._$.first_line};}
+    | ID PLAIN_STRING
+        {$$ = {value: $1 + parseEntities($2), lineno: this._$.first_line};}
+    | number COLON PLAIN_STRING
+        {$$ = {value: '' + $1 + $2 + parseEntities($3), lineno: this._$.first_line};}
+    | number PLAIN_STRING
+        {$$ = {value: '' + $1 + parseEntities($2), lineno: this._$.first_line};}
+    | number ID
+        {$$ = {value: '' + $1 + $2, lineno: this._$.first_line};}
+    ;
+
+
+expression
+    : STRING
+        {$$ = {value: parseEntities(yytext.substr(1, yytext.length-2)), lineno: this._$.first_line};}
     | number
         {$$ = {value: $1, lineno: this._$.first_line};}
     | list
         {$$ = {value: $1, lineno: this._$.first_line};}
     | boolean
         {$$ = {value: $1, lineno: this._$.first_line};}
-    | ID expression
-        {$$ = {value: $1 + $2.value, lineno: this._$.first_line};}
-    ;
-
-plain_string
-    : PLAIN_STRING
-        {$$ = yytext;}
-    | ID
-        {$$ = yytext;}
-    | PLAIN_STRING COLON plain_string
-        {$$ = $1 + ":" + $3;}
-    | ID COLON plain_string
-        {$$ = $1 + ":" + $3;}
     ;
 
 number
@@ -119,7 +126,9 @@ elements
     ;
 
 element
-    : expression
+    : plain_tuple_expression
+        {$$ = $1;}
+    | expression
         {$$ = $1;}
     ;
 
@@ -133,12 +142,31 @@ tuple_pairs
     ;
 
 tuple_pair
-    : STRING COLON expression
+    : STRING COLON plain_tuple_expression
         {$$ = {[$1.substr(1, $1.length-2)]: $3};}
-    | PLAIN_STRING COLON expression
+    | ELEMENT_PLAIN_STRING COLON plain_tuple_expression
+        {$$ = {[$1]: $3};}
+    | ID COLON plain_tuple_expression
+        {$$ = {[$1]: $3};}
+    | STRING COLON expression
+        {$$ = {[$1.substr(1, $1.length-2)]: $3};}
+    | ELEMENT_PLAIN_STRING COLON expression
         {$$ = {[$1]: $3};}
     | ID COLON expression
         {$$ = {[$1]: $3};}
+    ;
+
+plain_tuple_expression
+    : ID
+        {$$ = {value: yytext, lineno: this._$.first_line};}
+    | PLAIN_STRING
+        {$$ = {value: parseEntities(yytext), lineno: this._$.first_line};}
+    | ID PLAIN_STRING
+        {$$ = {value: $1 + parseEntities($2), lineno: this._$.first_line};}
+    | number PLAIN_STRING
+        {$$ = {value: '' + $1 + parseEntities($2), lineno: this._$.first_line};}
+    | number ID
+        {$$ = {value: '' + $1 + $2, lineno: this._$.first_line};}
     ;
 
 boolean
