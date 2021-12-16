@@ -217,6 +217,7 @@ export class NormalizeCat extends BaseCommand {
     this.name = 'NormalizeCat'
     this.displayName = 'Normalize by Category'
     this.inputs = {
+      ...this.inputs,
       InFieldName: new ResultParameter(new DataParameter(), false),
       RawValues: new ListParameter(new NumberParameter()),
       NormalValues: new ListParameter(new NumberParameter()),
@@ -237,6 +238,7 @@ export class NormalizeCurve extends BaseCommand {
     this.name = 'NormalizeCurve'
     this.displayName = 'Normalize Curve'
     this.inputs = {
+      ...this.inputs,
       InFieldName: new ResultParameter(new DataParameter(), false),
       RawValues: new ListParameter(new NumberParameter()),
       NormalValues: new ListParameter(new NumberParameter()),
@@ -256,6 +258,7 @@ export class NormalizeMeanToMid extends BaseCommand {
     this.name = 'NormalizeMeanToMid'
     this.displayName = 'Mean to Mid'
     this.inputs = {
+      ...this.inputs,
       InFieldName: new ResultParameter(new DataParameter(), false),
       IgnoreZeros: new BooleanParameter(),
       NormalValues: new ListParameter(new NumberParameter()),
@@ -275,6 +278,7 @@ export class NormalizeCurveZScore extends BaseCommand {
     this.name = 'NormalizeCurveZScore'
     this.displayName = 'Normalize Curve by Z Score'
     this.inputs = {
+      ...this.inputs,
       InFieldName: new ResultParameter(new DataParameter(), false),
       ZScoreValues: new ListParameter(new NumberParameter()),
       NormalValues: new ListParameter(new NumberParameter()),
