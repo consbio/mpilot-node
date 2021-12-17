@@ -88,6 +88,16 @@ describe('parser', () => {
     })
   })
 
+  test('tuples with links parse correctly', () => {
+    expect(
+      parse('A = Command(P = [A: A. https://databasin.org/datasets/abc/, B: https://consbio.org])').commands[0]
+        .arguments[0].value.value,
+    ).toEqual({
+      A: { value: 'A. https://databasin.org/datasets/abc/', lineno: 1 },
+      B: { value: 'https://consbio.org', lineno: 1 },
+    })
+  })
+
   test('An EEMS 2.0 READ command parses correctly and is identified as version 2', () => {
     const program = parse('READ(InFileName = foo.gdb, InFieldName = Test)')
     expect(program.version).toBe(2)
