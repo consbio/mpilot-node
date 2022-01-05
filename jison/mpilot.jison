@@ -10,9 +10,9 @@ const { parseEntities } = _entities
 ":"                                           return "COLON";
 ","                                           return "COMMA";
 "="                                           return "EQUAL";
+[a-zA-Z_][a-zA-Z_0-9]*                        return "ID";
 "False"                                       return "FALSE";
 [\-\+]?((\d+\.\d*)|(\.\d+))([eE][\+\-]?\d+)?  return "FLOAT";
-[a-zA-Z_][a-zA-Z_0-9]*                        return "ID";
 [\-\+]?\d+                                    return "INT";
 "["                                           return "LBRACK";
 "("                                           return "LPAREN";

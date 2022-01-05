@@ -139,4 +139,8 @@ describe('parser', () => {
       },
     ])
   })
+
+  test('FalseThreshold does not tokenize as FALSE', () => {
+    expect(parse('A = Command(FalseThreshold = 1.0)').commands[0].arguments[0].name).toEqual('FalseThreshold')
+  })
 })
