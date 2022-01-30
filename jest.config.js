@@ -1,5 +1,3 @@
 module.exports = {
-  globals: {
-    _entities: { parseEntities: s => s },
-  },
+  transformIgnorePatterns: ['/node_modules/(?!parse-entities|character-|is-)'],
 }

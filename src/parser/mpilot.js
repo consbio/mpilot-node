@@ -4094,7 +4094,7 @@ EOF: 1,
 }();
 parser.lexer = lexer;
 
-const { parseEntities } = _entities;
+const { parseEntities } = require('parse-entities');
 
 function Parser() {
   this.yy = {};

@@ -14,7 +14,7 @@
   },
   "scripts": {
     "build": "rm -Rf dist lib lib-esm && tsc && tsc -m es6 --outDir lib-esm && cp src/parser/mpilot.* lib/parser && cp src/parser/mpilot.* lib-esm/parser && webpack --config webpack.config.babel.js",
-    "test": "jest --verbose --expand",
+    "test": "jest -c jest.config.js --verbose --expand",
     "build-parser": "jison jison/mpilot.jison -o src/parser/mpilot.js"
   },
   "name": "mpilot",

@@ -1,5 +1,5 @@
 %{
-const { parseEntities } = _entities
+const { parseEntities } = require('parse-entities')
 %}
 
 %lex
