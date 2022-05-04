@@ -94,10 +94,10 @@ export class CvtToFuzzyMeanToMid extends CvtToFuzzyCurve {
     this.name = 'CvtToFuzzyMeanToMid'
     this.displayName = 'Mean To Mid'
     this.inputs = {
-      ...this.inputs,
       InFieldName: new ResultParameter(new DataParameter(), false),
       IgnoreZeros: new BooleanParameter(),
       FuzzyValues: new ListParameter(new NumberParameter()),
+      Metadata: this.inputs.Metadata,
     }
     this.output = new DataParameter()
   }
